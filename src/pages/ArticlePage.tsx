@@ -18,10 +18,12 @@ import ArticleCard from "../components/ArticleCard";
 import AdSense from "../components/AdSense";
 import { Article } from "../types";
 
+const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
 const getImageUrl = (imagePath: string | undefined) => {
   if (!imagePath) return undefined;
   if (imagePath.startsWith("/uploads")) {
-    return `http://localhost:5000${imagePath}`;
+    return `${BACKEND_URL}${imagePath}`;
   }
   return imagePath;
 };

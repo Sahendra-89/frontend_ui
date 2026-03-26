@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 import { Article } from '../types';
 
+const BACKEND_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+
 const getImageUrl = (imagePath: string | undefined) => {
     if (!imagePath) return 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=800&auto=format&fit=crop&q=60'; // Default fallback
     if (imagePath.startsWith('/uploads')) {
-        return `http://localhost:5000${imagePath}`;
+        return `${BACKEND_URL}${imagePath}`;
     }
     return imagePath;
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 interface ServiceRequestModalProps {
     isOpen: boolean;
@@ -56,7 +56,7 @@ const ServiceRequestModal: React.FC<ServiceRequestModalProps> = ({ isOpen, onClo
         }
 
         try {
-            await axios.post('http://localhost:5000/api/services/request', formData);
+            await api.post('/services/request', formData);
             setStatus('success');
             setTimeout(() => {
                 onClose();

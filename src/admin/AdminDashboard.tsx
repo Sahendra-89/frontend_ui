@@ -684,7 +684,7 @@ const AdminDashboard = () => {
                                             <div className="flex items-center space-x-4 flex-1">
                                                 <div className="w-16 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0 relative">
                                                     {a.image ? (
-                                                        <img src={a.image.startsWith('/uploads') ? `http://localhost:5000${a.image}` : a.image} className="w-full h-full object-cover" alt="" />
+                                                        <img src={a.image.startsWith('/uploads') ? `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}${a.image}` : a.image} className="w-full h-full object-cover" alt="" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                             <FileText size={20} />
@@ -1022,65 +1022,202 @@ const AdminDashboard = () => {
                         )
                     }
 
-                    {/* --- Admins Tab --- */}
+                    {/* --- Admins Tab (Super Admin Only) --- */}
                     {
                         activeTab === 'admins' && role === 'superadmin' && (
                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                                {/* Header Banner */}
+                                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-8 text-white relative overflow-hidden">
+                                    <div className="relative z-10">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                                <Users size={18} className="text-white" />
+                                            </div>
+                                            <span className="text-xs font-black uppercase tracking-widest text-purple-200">Super Admin Panel</span>
+                                        </div>
+                                        <h2 className="text-2xl font-bold mb-1">Team Access Management</h2>
+                                        <p className="text-purple-200 text-sm">
+                                            Grant or revoke backend access for your editorial team. Employee accounts can manage news, videos, and categories.
+                                        </p>
+                                        <div className="flex gap-4 mt-4">
+                                            <div className="bg-white/10 rounded-xl px-4 py-2 text-center">
+                                                <p className="text-2xl font-black">{admins.length}</p>
+                                                <p className="text-xs text-purple-200 uppercase tracking-wider">Total Staff</p>
+                                            </div>
+                                            <div className="bg-white/10 rounded-xl px-4 py-2 text-center">
+                                                <p className="text-2xl font-black">{admins.filter((a: any) => a.role === 'employee').length}</p>
+                                                <p className="text-xs text-purple-200 uppercase tracking-wider">Employees</p>
+                                            </div>
+                                            <div className="bg-white/10 rounded-xl px-4 py-2 text-center">
+                                                <p className="text-2xl font-black">{admins.filter((a: any) => a.role === 'superadmin').length}</p>
+                                                <p className="text-xs text-purple-200 uppercase tracking-wider">Super Admins</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Users size={160} className="absolute -right-8 -bottom-8 text-white/5" />
+                                </div>
+
                                 <div className="grid md:grid-cols-3 gap-8">
+                                    {/* Grant Access Form */}
                                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-fit">
-                                        <h2 className="text-xl font-bold mb-6 flex items-center text-gray-800">
+                                        <h2 className="text-xl font-bold mb-2 flex items-center text-gray-800">
                                             <span className="w-1.5 h-6 bg-purple-600 rounded-full mr-3"></span>
-                                            Add New Admin
+                                            Grant Access
                                         </h2>
+                                        <p className="text-xs text-gray-400 mb-6">Create a login account for a new team member.</p>
                                         <form onSubmit={handleAdminSubmit} className="space-y-4">
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Username</label>
-                                                <input type="text" name="username" value={adminForm.username} onChange={e => setAdminForm({ ...adminForm, username: e.target.value })} className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all" placeholder="e.g. johndoe" required />
+                                                <input
+                                                    type="text"
+                                                    name="username"
+                                                    value={adminForm.username}
+                                                    onChange={e => setAdminForm({ ...adminForm, username: e.target.value })}
+                                                    className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
+                                                    placeholder="e.g. john_editor"
+                                                    required
+                                                />
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Password</label>
-                                                <input type="password" name="password" value={adminForm.password} onChange={e => setAdminForm({ ...adminForm, password: e.target.value })} className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all" placeholder="••••••••" required />
+                                                <input
+                                                    type="password"
+                                                    name="password"
+                                                    value={adminForm.password}
+                                                    onChange={e => setAdminForm({ ...adminForm, password: e.target.value })}
+                                                    className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
+                                                    placeholder="Min. 6 characters"
+                                                    required
+                                                />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Assigned Role</label>
-                                                <select name="role" value={adminForm.role} onChange={e => setAdminForm({ ...adminForm, role: e.target.value })} className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all bg-white">
-                                                    <option value="employee">Employee (Editor)</option>
-                                                    <option value="superadmin">Super Admin (Full Access)</option>
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide ml-1">Access Level</label>
+                                                <select
+                                                    name="role"
+                                                    value={adminForm.role}
+                                                    onChange={e => setAdminForm({ ...adminForm, role: e.target.value })}
+                                                    className="border border-gray-200 p-3 rounded-xl w-full focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all bg-white"
+                                                >
+                                                    <option value="employee">🟢 Employee — Editor Access</option>
+                                                    <option value="superadmin">🔴 Super Admin — Full Access</option>
                                                 </select>
+                                                <p className="text-[10px] text-gray-400 ml-1 mt-1">
+                                                    Employees can manage news, videos & categories. Super Admins have full control.
+                                                </p>
                                             </div>
-                                            <button className="w-full bg-purple-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-100 hover:bg-purple-700 hover:shadow-xl transition-all flex items-center justify-center mt-4">
+                                            <button
+                                                type="submit"
+                                                className="w-full bg-purple-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-100 hover:bg-purple-700 hover:shadow-xl transition-all flex items-center justify-center mt-2"
+                                            >
                                                 <Users size={18} className="mr-2" />
                                                 Grant Access
                                             </button>
                                         </form>
+
+                                        {/* Permissions Info Box */}
+                                        <div className="mt-6 bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                            <h4 className="text-xs font-black text-gray-700 uppercase tracking-wider mb-3">Employee Permissions</h4>
+                                            <ul className="space-y-1.5">
+                                                {[
+                                                    { label: 'Publish & Edit Articles', allowed: true },
+                                                    { label: 'Manage Videos', allowed: true },
+                                                    { label: 'Manage Categories', allowed: true },
+                                                    { label: 'Manage Pages', allowed: true },
+                                                    { label: 'Manage Settings', allowed: true },
+                                                    { label: 'Add / Remove Staff', allowed: false },
+                                                ].map(p => (
+                                                    <li key={p.label} className="flex items-center text-xs">
+                                                        <span className={`w-4 h-4 rounded-full mr-2 flex items-center justify-center text-[9px] font-bold ${p.allowed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-400'}`}>
+                                                            {p.allowed ? '✓' : '✕'}
+                                                        </span>
+                                                        <span className={p.allowed ? 'text-gray-600' : 'text-gray-400'}>{p.label}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
 
+                                    {/* Team List */}
                                     <div className="md:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+                                        <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
                                             <h2 className="font-bold text-lg text-gray-800">Administrative Team</h2>
+                                            <span className="bg-purple-50 text-purple-600 text-xs font-black px-3 py-1 rounded-full">
+                                                {admins.length} Member{admins.length !== 1 ? 's' : ''}
+                                            </span>
                                         </div>
                                         <div className="divide-y divide-gray-50">
-                                            {admins.map(a => (
-                                                <div key={a._id} className="flex justify-between items-center p-6 hover:bg-gray-50 transition-colors group">
+                                            {admins.map((a: any) => (
+                                                <div key={a._id} className="flex justify-between items-center p-5 hover:bg-gray-50 transition-colors group">
                                                     <div className="flex items-center space-x-4">
-                                                        <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-blue-50 text-purple-700 rounded-full flex items-center justify-center font-bold text-sm border border-purple-100">
+                                                        <div className={`w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm border-2 ${a.role === 'superadmin'
+                                                                ? 'bg-gradient-to-br from-purple-100 to-indigo-100 text-purple-700 border-purple-200'
+                                                                : 'bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-600 border-blue-100'
+                                                            }`}>
                                                             {a.username.charAt(0).toUpperCase()}
                                                         </div>
                                                         <div>
-                                                            <h3 className="font-bold text-gray-900">{a.username}</h3>
-                                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-500 mt-1">
-                                                                {a.role}
-                                                            </span>
+                                                            <div className="flex items-center gap-2">
+                                                                <h3 className="font-bold text-gray-900">{a.username}</h3>
+                                                                {a.username === localStorage.getItem('username') && (
+                                                                    <span className="text-[9px] font-black bg-blue-100 text-blue-500 px-2 py-0.5 rounded-full uppercase tracking-wider">You</span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide ${a.role === 'superadmin'
+                                                                        ? 'bg-purple-100 text-purple-700'
+                                                                        : 'bg-green-100 text-green-700'
+                                                                    }`}>
+                                                                    {a.role === 'superadmin' ? '👑 Super Admin' : '✏️ Employee'}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    {a.role !== 'superadmin' && (
-                                                        <button onClick={() => handleDeleteAdmin(a._id)} className="bg-white border border-gray-200 text-red-500 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100 shadow-sm">
+                                                    {a.role !== 'superadmin' && a.username !== localStorage.getItem('username') && (
+                                                        <button
+                                                            onClick={() => handleDeleteAdmin(a._id)}
+                                                            className="bg-white border border-gray-200 text-red-500 px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100 shadow-sm flex items-center gap-1"
+                                                        >
+                                                            <X size={14} />
                                                             Revoke Access
                                                         </button>
                                                     )}
                                                 </div>
                                             ))}
+                                            {admins.length === 0 && (
+                                                <div className="p-16 text-center text-gray-400 flex flex-col items-center">
+                                                    <Users size={48} className="mb-4 opacity-20" />
+                                                    <p className="italic">No team members yet. Grant access to your first employee.</p>
+                                                </div>
+                                            )}
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Portal Login Instructions */}
+                                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-6">
+                                    <h3 className="font-bold text-amber-900 mb-2 text-sm flex items-center gap-2">
+                                        <Bell size={16} className="text-amber-600" />
+                                        How Employee Login Works
+                                    </h3>
+                                    <div className="grid md:grid-cols-3 gap-4 mt-3">
+                                        {[
+                                            { step: '1', title: 'Share Credentials', desc: 'Share the username & password with your team member privately.' },
+                                            { step: '2', title: 'Employee Logs In', desc: 'They visit /admin/login and sign in using their credentials.' },
+                                            { step: '3', title: 'Editor Dashboard', desc: 'They get access to the dashboard with editor permissions.' },
+                                        ].map(s => (
+                                            <div key={s.step} className="flex items-start gap-3">
+                                                <div className="w-7 h-7 bg-amber-200 text-amber-800 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0">{s.step}</div>
+                                                <div>
+                                                    <p className="font-bold text-amber-900 text-sm">{s.title}</p>
+                                                    <p className="text-amber-700 text-xs mt-0.5">{s.desc}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mt-4 bg-white rounded-xl p-3 border border-amber-100 flex items-center gap-3">
+                                        <span className="text-xs text-gray-500">🔗 Admin Login Portal:</span>
+                                        <code className="text-xs font-mono text-blue-600 font-bold">{window.location.origin}/admin/login</code>
                                     </div>
                                 </div>
                             </div>
